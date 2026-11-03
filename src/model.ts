@@ -17,6 +17,9 @@ export function calculate(o:{pricing:Params,filament:string,weight:number,hours:
  const saleTotal=o.quotedTotal??suggested,profit=saleTotal-totalCost;
  return {material:Math.round(material),energy:Math.round(energy),depreciation:Math.round(depreciation),unitCost:Math.round(unitRaw),totalCost,suggested,saleTotal,profit,suggestedProfit:suggested-totalCost,balance:saleTotal-received(o),margin:saleTotal?profit/saleTotal:0};
 }
+// Derive paid archives so existing backups work and corrected payments reopen the order.
+export function isFullyPaid(o:Order){const n=calculate(o);return n.saleTotal>0&&n.balance<=0;}
+export const isArchived=(o:Order)=>o.archived||isFullyPaid(o);
 export function emptyOrder(pricing:Params):Order{return {id:crypto.randomUUID(),name:'',product:'',quantity:1,phase:PHASES[0],status:'Pendiente',due:'',filament:pricing.filaments[0].name,weight:0,hours:0,extraCost:0,quotedTotal:null,initialPaid:0,payments:[],notes:'',phone:'',nextContact:'',archived:false,pricing:structuredClone(pricing),history:[],revision:0,updatedAt:new Date().toISOString()};}
 export const money=(n:number)=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(n);
 export const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Bogota',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());

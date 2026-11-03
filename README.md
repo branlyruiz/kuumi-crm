@@ -10,6 +10,8 @@ La primera pantalla permite cargar la hoja de referencia que el usuario comparti
 
 Los pedidos y parámetros se guardan por dispositivo. El menú permite respaldar ambos y exportar la vista a CSV. Los registros de clientes no forman parte del repositorio. El navegador solicita conservación del almacenamiento cuando está disponible; los respaldos permiten cambiar de dispositivo o recuperar datos borrados del navegador.
 
+La prioridad y el icono de búsqueda comparten una línea; el estado se elige en un desplegable. La pestaña Archivados reúne los pedidos archivados manualmente y aquellos cuyo precio de venta positivo está cubierto por el abono inicial y los pagos posteriores. Los pagos parciales y los pedidos sin precio permanecen activos. Esta clasificación también se aplica a respaldos anteriores. Corregir un pago o precio y dejar saldo reabre el pedido, salvo que se hubiera archivado manualmente. El archivo conserva los datos y permite editarlos.
+
 ## Cálculos
 
 Peso y horas corresponden a una pieza. La cantidad multiplica material, energía y depreciación. Otros costos son un importe adicional del pedido.
