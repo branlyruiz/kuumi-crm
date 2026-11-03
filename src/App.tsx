@@ -16,7 +16,7 @@ export default function App(){
  function load(){try{setData(createStore(localStorage).read());setError('');}catch(e){setError((e as Error).message);}finally{setLoading(false);}}
  useEffect(()=>{load();const sync=(e:StorageEvent)=>{if(e.key===KEY)load();};window.addEventListener('storage',sync);window.addEventListener('focus',load);navigator.storage?.persist?.().catch(()=>{});return()=>{window.removeEventListener('storage',sync);window.removeEventListener('focus',load);if(timer.current)clearTimeout(timer.current);};},[]);
  const reset=()=>{setQuery('');setStatus('');setPhase('');setMaterial('');};
- function navigate(m:Mode){setMode(m);reset();setMenu(false);}
+ function navigate(m:Mode){setMode(m);reset();setMenu(false);window.scrollTo({top:0,left:0,behavior:'auto'});}
  async function save(o:Order){const next=await transact(s=>s.saveOrder(o));setData(next);notify('Pedido guardado');}
  async function archive(o:Order){try{await save({...o,archived:!o.archived,history:[...o.history,{id:crypto.randomUUID(),at:now(),text:o.archived?'Pedido restaurado':'Pedido archivado'}]});notify(o.archived?'Pedido restaurado':'Pedido archivado · puedes restaurarlo en Archivo');}catch(e){notify((e as Error).message);}}
  async function loadSheet(){setImporting(true);setMenu(false);try{const reference=await importReference();const result=await transact(s=>{const current=s.read();return s.import(reference,!current.orders.length&&current.paramsRevision===0);});setData(result.state);notify(`${result.added} pedidos importados · ${result.skipped} ya existentes`);}catch(e){notify((e as Error).message);}finally{setImporting(false);}}
