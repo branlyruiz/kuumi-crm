@@ -20,12 +20,19 @@ export function calculate(o:{pricing:Params,filament:string,weight:number,hours:
 // Derive paid archives so existing backups work and corrected payments reopen the order.
 export function isFullyPaid(o:Order){const n=calculate(o);return n.saleTotal>0&&n.balance<=0;}
 export const isArchived=(o:Order)=>o.archived||isFullyPaid(o);
+// Archiving production must not hide money that is still owed.
+export const isReceivable=(o:Order)=>o.status!=='Cancelado'&&calculate(o).balance>0;
+export function registerPayment(o:Order,payment:{amount:number,date:string,note:string}):Order{
+ if(!isReceivable(o))throw Error('Este pedido no tiene un saldo pendiente disponible para abonar.');
+ if(!Number.isSafeInteger(payment.amount)||payment.amount<=0||payment.amount>calculate(o).balance)throw Error('Indica un abono mayor a cero que no supere el saldo.');
+ return orderSchema.parse({...o,payments:[...o.payments,{id:crypto.randomUUID(),...payment}],history:[...o.history,{id:crypto.randomUUID(),at:new Date().toISOString(),text:'Abono registrado: '+money(payment.amount)}]});
+}
 export function emptyOrder(pricing:Params):Order{return {id:crypto.randomUUID(),name:'',product:'',quantity:1,phase:PHASES[0],status:'Pendiente',due:'',filament:pricing.filaments[0].name,weight:0,hours:0,extraCost:0,quotedTotal:null,initialPaid:0,payments:[],notes:'',phone:'',nextContact:'',archived:false,pricing:structuredClone(pricing),history:[],revision:0,updatedAt:new Date().toISOString()};}
 export const money=(n:number)=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(n);
 export const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Bogota',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 export const dateLabel=(v:string)=>v?new Intl.DateTimeFormat('es-CO',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(v+'T12:00:00Z')):'Sin fecha';
 export const normalize=(s:string)=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-export const tone=(o:Order)=>o.status==='Cancelado'?'red':o.status==='Correcciones'?'amber':o.status==='Entregado'?'green':o.status==='Aplazado'?'gray':PHASES.indexOf(o.phase)>=3?'purple':'amber';
+export const tone=(o:Order)=>o.status==='Cancelado'?'red':o.status==='Correcciones'?'rose':o.status==='Entregado'||o.phase==='Entregado'?'green':o.status==='Aplazado'?'gray':o.phase==='Control de calidad / Listo'?'blue':PHASES.indexOf(o.phase)>=3?'purple':'amber';
 export const group=(o:Order)=>o.status==='Pendiente'?o.phase:o.status;
 const priority=(o:Order)=>o.status==='Correcciones'?0:o.status==='Entregado'?20:o.status==='Aplazado'?21:o.status==='Cancelado'?22:({'Imprimiendo':1,'Control de calidad / Listo':2,'Post-procesado / Acabado':3,'Impreso':4,'Preparación / Laminado':5,'En diseño':6,'Orden confirmada':7,'Cotización y negociación':8,'Recepción de orden':9,'Entregado':20}[o.phase]??10);
 export function sortOrders(rows:Order[],key:string,desc=false){const direction=desc?-1:1;const nullable=(a:string,b:string)=>!a?(!b?0:1):!b?-1:a.localeCompare(b)*direction;return [...rows].sort((a,b)=>{const x=calculate(a),y=calculate(b);let n=key==='auto'?priority(a)-priority(b)||nullable(a.due,b.due):key==='name'?a.name.localeCompare(b.name,'es')*direction:key==='date'?nullable(a.due,b.due):key==='updated'?a.updatedAt.localeCompare(b.updatedAt)*direction:((x as any)[key]-(y as any)[key])*direction;return n||a.name.localeCompare(b.name,'es')||a.product.localeCompare(b.product,'es');});}

@@ -1,6 +1,6 @@
 # Kuumi · CRM 3D
 
-Mini app de pedidos e impresión 3D para GitHub Pages, con icono de Kuumi y diseño para iPhone. Las cards muestran cliente, producto, cantidad, precio sugerido, costo total y utilidad. El acordeón permite editar producción, venta, abonos, contactos y observaciones.
+Mini app de pedidos e impresión 3D para GitHub Pages, con icono de Kuumi y diseño para iPhone. Las cards muestran cliente, producto, cantidad, precio sugerido, costo total y utilidad. El acordeón ofrece Editar información y Registrar abono. La ficha permite editar producción, venta, abonos, contactos y observaciones; al guardar correctamente se cierran la ficha y el acordeón.
 
 ## Usar
 
@@ -10,7 +10,18 @@ La primera pantalla permite cargar la hoja de referencia que el usuario comparti
 
 Los pedidos y parámetros se guardan por dispositivo. El menú permite respaldar ambos y exportar la vista a CSV. Los registros de clientes no forman parte del repositorio. El navegador solicita conservación del almacenamiento cuando está disponible; los respaldos permiten cambiar de dispositivo o recuperar datos borrados del navegador.
 
-La prioridad y el icono de búsqueda comparten una línea; el estado se elige en un desplegable. La pestaña Archivados reúne los pedidos archivados manualmente y aquellos cuyo precio de venta positivo está cubierto por el abono inicial y los pagos posteriores. Los pagos parciales y los pedidos sin precio permanecen activos. Esta clasificación también se aplica a respaldos anteriores. Corregir un pago o precio y dejar saldo reabre el pedido, salvo que se hubiera archivado manualmente. El archivo conserva los datos y permite editarlos.
+## Interfaz
+
+- **Pedidos:** resumen financiero plegable, búsqueda por icono y selector de estado en una sola línea con ajustes. Prioridad de producción, orden, fase y material se encuentran en Más filtros y orden.
+- **Tarjetas:** cliente, producto, cantidad, estado/fase, entrega, precio sugerido, costo y utilidad. Los fondos distinguen pendientes (ámbar), producción (lavanda), correcciones (rosa), listo para entregar (azul), entregados (verde), aplazados (gris) y cancelados (coral).
+- **Edición:** el acordeón contiene acciones cortas para editar y registrar abonos en ventanas independientes. Un guardado correcto cierra ventana y acordeón; los errores conservan los cambios para corregirlos.
+- **Archivo rápido:** icono visible en cada pedido no pagado, acción dentro del acordeón y gesto de deslizar. Incluye Deshacer y restauración desde Archivo.
+- **Por cobrar:** filas con cliente, producto, saldo y botón + para abonar directamente. Ofrece Pagar saldo completo; un abono parcial actualiza la fila y el pago completo la retira.
+- **Menú flotante:** Pedidos, Por cobrar, Parámetros y Archivo; solo la sección activa muestra su etiqueta. El + separado crea un pedido.
+
+Un pedido archivado manualmente con deuda sigue visible en **Por cobrar** y en el resumen de saldo pendiente. Archivar no registra un pago ni cambia su fase o estado. Cancelados quedan excluidos de cobros. Los controles principales tienen objetivos táctiles de al menos 44 px.
+
+ La pestaña Archivados reúne los pedidos archivados manualmente y aquellos cuyo precio de venta positivo está cubierto por el abono inicial y los pagos posteriores. Los pagos parciales y los pedidos sin precio permanecen activos. El pago completo archiva aunque el pedido siga en producción. Esta clasificación también se aplica a respaldos anteriores. Corregir un pago o precio y dejar saldo reabre el pedido, salvo que se hubiera archivado manualmente. El archivo conserva los datos y permite editarlos. Los pedidos pagados permanecen archivados automáticamente mientras mantengan saldo cero; los archivados manualmente con saldo se pueden restaurar con su botón.
 
 ## Cálculos
 

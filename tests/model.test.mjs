@@ -1,5 +1,5 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';
-import {defaultParams,emptyOrder,calculate,orderSchema,paramsSchema,sortOrders,isFullyPaid,isArchived} from '../src/model.ts';
+import {defaultParams,emptyOrder,calculate,orderSchema,paramsSchema,sortOrders,isFullyPaid,isArchived,isReceivable,registerPayment} from '../src/model.ts';
 import {createStore,KEY} from '../src/store.ts';import {paramsFromRows,ordersFromRows,parseResponse} from '../src/sheet.ts';
 const order=(o={})=>({...emptyOrder(defaultParams()),name:'Cliente',product:'Pieza',...o});
 const disk=()=>{const d=new Map();return {getItem:k=>d.get(k)||null,setItem:(k,v)=>d.set(k,v)};};
@@ -33,4 +33,29 @@ test('paid imports and legacy saved records archive without changing data; payme
  store.import({orders:[paid]});const saved=store.read().orders[0];
  assert.equal(saved.archived,false);assert.equal(isArchived(saved),true);assert.equal(saved.payments[0].note,'Final');
  store.saveOrder({...saved,initialPaid:0});assert.equal(isArchived(createStore(d).read().orders[0]),false);
+});
+test('archiving a delivered order preserves its debt until the final payment',()=>{
+ const store=createStore(disk());store.saveOrder(order({status:'Entregado',phase:'Entregado',archived:true,quotedTotal:100000,initialPaid:20000}));
+ const original=store.read().orders[0];
+ assert.equal(isArchived(original),true);assert.equal(isReceivable(original),true);
+ store.saveOrder(registerPayment(original,{amount:30000,date:'2026-11-04',note:'Transferencia'}));
+ const partial=store.read().orders[0];
+ assert.equal(calculate(partial).balance,50000);assert.equal(partial.archived,true);assert.equal(isReceivable(partial),true);
+ assert.equal(partial.history.length,1);assert.equal(partial.payments[0].note,'Transferencia');assert.equal(original.payments.length,0);
+ store.saveOrder(registerPayment(partial,{amount:50000,date:'2026-11-04',note:''}));
+ const full=store.read().orders[0];assert.equal(isReceivable(full),false);assert.equal(isArchived(full),true);assert.equal(calculate(full).balance,0);
+});
+test('direct payments reject invalid amounts, impossible dates and cancelled orders',()=>{
+ const base=order({quotedTotal:100000});
+ for(const amount of [0,-1,.5,NaN,100001])assert.throws(()=>registerPayment(base,{amount,date:'2026-11-04',note:''}));
+ for(const date of ['', '2026-02-31'])assert.throws(()=>registerPayment(base,{amount:1,date,note:''}));
+ assert.throws(()=>registerPayment({...base,status:'Cancelado'},{amount:1,date:'2026-11-04',note:''}));
+ assert.equal(isReceivable({...base,status:'Cancelado',archived:true}),false);
+});
+test('stale direct payments cannot overwrite another installment and old backups remain importable',()=>{
+ const store=createStore(disk());store.import({version:1,params:defaultParams(),orders:[order({quotedTotal:60000})]},true);
+ const original=store.read().orders[0];store.saveOrder(registerPayment(original,{amount:10000,date:'2026-11-04',note:'Primero'}));
+ assert.throws(()=>store.saveOrder(registerPayment(original,{amount:20000,date:'2026-11-04',note:'Viejo'})),/otra pestaña/);
+ const saved=store.read().orders[0];assert.equal(saved.payments.length,1);assert.equal(calculate(saved).balance,50000);
+ assert.equal(isReceivable({...saved,archived:true}),true);
 });
