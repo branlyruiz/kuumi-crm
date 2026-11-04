@@ -1,5 +1,5 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';
-import {defaultParams,emptyOrder,calculate,orderSchema,paramsSchema,sortOrders,isFullyPaid,isArchived,isReceivable,registerPayment} from '../src/model.ts';
+import {defaultParams,emptyOrder,calculate,orderSchema,paramsSchema,sortOrders,isFullyPaid,isArchived,isReceivable,registerPayment,updateProgress} from '../src/model.ts';
 import {createStore,KEY} from '../src/store.ts';import {paramsFromRows,ordersFromRows,parseResponse} from '../src/sheet.ts';
 const order=(o={})=>({...emptyOrder(defaultParams()),name:'Cliente',product:'Pieza',...o});
 const disk=()=>{const d=new Map();return {getItem:k=>d.get(k)||null,setItem:(k,v)=>d.set(k,v)};};
@@ -58,4 +58,25 @@ test('stale direct payments cannot overwrite another installment and old backups
  assert.throws(()=>store.saveOrder(registerPayment(original,{amount:20000,date:'2026-11-04',note:'Viejo'})),/otra pestaña/);
  const saved=store.read().orders[0];assert.equal(saved.payments.length,1);assert.equal(calculate(saved).balance,50000);
  assert.equal(isReceivable({...saved,archived:true}),true);
+});
+test('quick production changes keep delivery state consistent and preserve money and history',()=>{
+ const original=order({quotedTotal:100000,initialPaid:20000,phase:'En diseño'});
+ const delivered=updateProgress(original,{phase:'Entregado'});
+ assert.equal(delivered.status,'Entregado');assert.equal(delivered.phase,'Entregado');assert.equal(isReceivable(delivered),true);
+ assert.equal(calculate(delivered).balance,80000);assert.equal(isArchived(delivered),false);
+ assert.equal(delivered.history.length,1);assert.match(delivered.history[0].text,/Entregado/);assert.equal(original.history.length,0);
+ const corrections=updateProgress(delivered,{status:'Correcciones'});
+ assert.equal(corrections.phase,'En diseño');assert.equal(corrections.status,'Correcciones');assert.equal(corrections.history.length,2);
+ const printing=updateProgress(delivered,{phase:'Imprimiendo'});
+ assert.equal(printing.status,'Pendiente');assert.equal(printing.phase,'Imprimiendo');
+ assert.equal(updateProgress(printing,{phase:'Imprimiendo'}),printing);
+});
+test('quick status updates persist, cancel receivables and reject stale saves',()=>{
+ const store=createStore(disk());store.saveOrder(order({quotedTotal:100000}));const before=store.read().orders[0];
+ store.saveOrder(updateProgress(before,{status:'Entregado'}));const delivered=store.read().orders[0];
+ assert.equal(delivered.phase,'Entregado');assert.equal(isReceivable(delivered),true);
+ assert.throws(()=>store.saveOrder(updateProgress(before,{phase:'Imprimiendo'})),/otra pestaña/);
+ store.saveOrder(updateProgress(delivered,{status:'Cancelado'}));const cancelled=store.read().orders[0];
+ assert.equal(cancelled.phase,'Orden confirmada');assert.equal(isReceivable(cancelled),false);assert.equal(calculate(cancelled).balance,100000);
+ assert.throws(()=>updateProgress(before,{phase:'Fase inválida'}));
 });

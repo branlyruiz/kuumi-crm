@@ -22,6 +22,14 @@ export function isFullyPaid(o:Order){const n=calculate(o);return n.saleTotal>0&&
 export const isArchived=(o:Order)=>o.archived||isFullyPaid(o);
 // Archiving production must not hide money that is still owed.
 export const isReceivable=(o:Order)=>o.status!=='Cancelado'&&calculate(o).balance>0;
+export type ProgressChange={phase:Order['phase']}|{status:Order['status']};
+export function updateProgress(o:Order,change:ProgressChange):Order{
+ const next={...o,...change};
+ if('phase' in change){if(change.phase==='Entregado')next.status='Entregado';else if(o.status==='Entregado')next.status='Pendiente';}
+ else if(change.status==='Entregado')next.phase='Entregado';else if(o.phase==='Entregado')next.phase=change.status==='Correcciones'?'En diseño':'Orden confirmada';
+ if(next.phase===o.phase&&next.status===o.status)return o;
+ return orderSchema.parse({...next,history:[...o.history,{id:crypto.randomUUID(),at:new Date().toISOString(),text:`Avance: ${next.phase} · ${next.status}`}]});
+}
 export function registerPayment(o:Order,payment:{amount:number,date:string,note:string}):Order{
  if(!isReceivable(o))throw Error('Este pedido no tiene un saldo pendiente disponible para abonar.');
  if(!Number.isSafeInteger(payment.amount)||payment.amount<=0||payment.amount>calculate(o).balance)throw Error('Indica un abono mayor a cero que no supere el saldo.');
