@@ -1,6 +1,6 @@
 # Kuumi · CRM 3D
 
-Mini app de pedidos e impresión 3D para GitHub Pages, con icono de Kuumi y diseño para iPhone. Las cards muestran cliente, producto, cantidad, precio sugerido, costo total y utilidad. El acordeón ofrece Editar información y Registrar abono. La ficha permite editar producción, venta, abonos, contactos y observaciones; al guardar correctamente se cierran la ficha y el acordeón.
+Mini app de pedidos e impresión 3D para GitHub Pages, con icono de Kuumi y diseño para iPhone. Las cards muestran cliente, producto, cantidad, precio sugerido, costo total y utilidad. Las tarjetas ofrecen accesos rápidos para editar, abonar, cambiar fase y estado. La ficha permite editar producción, venta, abonos, contactos y observaciones; al guardar correctamente se cierran la ficha y el acordeón.
 
 ## Usar
 
@@ -14,7 +14,7 @@ Los pedidos y parámetros se guardan por dispositivo. El menú permite respaldar
 
 - **Pedidos:** resumen financiero plegable, búsqueda por icono y selector de estado en una sola línea con ajustes. Prioridad de producción, orden, fase y material se encuentran en Más filtros y orden.
 - **Tarjetas:** cliente, producto, cantidad, estado/fase, entrega, precio sugerido, costo y utilidad. Los fondos distinguen pendientes (ámbar), producción (lavanda), correcciones (rosa), listo para entregar (azul), entregados (verde), aplazados (gris) y cancelados (coral).
-- **Acciones rápidas:** cada tarjeta muestra cuatro iconos: Editar, Abono, Fase y Estado. Fase y Estado abren selectores con su valor actual y guardan el cambio directamente, conservando la coherencia de entrega y el historial. Ambos valores se leen también en la tarjeta. El acordeón conserva saldo, contacto, notas y archivo. Editar y Abono abren ventanas independientes; un guardado correcto cierra ventana y acordeón, y los errores conservan los cambios.
+- **Acciones rápidas:** cada tarjeta muestra cuatro iconos: Editar, Abono, Fase y Estado. Fase y Estado abren hojas contextuales con su valor actual y guardan el cambio directamente, conservando la coherencia de entrega y el historial. Ambos valores se leen también en la tarjeta. El acordeón conserva saldo, contacto, notas y archivo. Editar y Abono abren ventanas independientes; un guardado correcto cierra ventana y acordeón, y los errores conservan los cambios.
 - **Archivo rápido:** icono visible en cada pedido no pagado, acción dentro del acordeón y gesto de deslizar. Incluye Deshacer y restauración desde Archivo.
 - **Por cobrar:** filas con cliente, producto, saldo y botón + para abonar directamente. Ofrece Pagar saldo completo; un abono parcial actualiza la fila y el pago completo la retira.
 - **Menú flotante:** Pedidos, Por cobrar, Parámetros y Archivo; solo la sección activa muestra su etiqueta. El + separado crea un pedido.
@@ -22,6 +22,14 @@ Los pedidos y parámetros se guardan por dispositivo. El menú permite respaldar
 Un pedido archivado manualmente con deuda sigue visible en **Por cobrar** y en el resumen de saldo pendiente. Archivar no registra un pago ni cambia su fase o estado. Cancelados quedan excluidos de cobros. Los controles principales tienen objetivos táctiles de al menos 44 px. En móvil, Fecha de entrega y Teléfono ocupan filas completas separadas para evitar superposiciones con el selector de fecha de Safari. La etiqueta del formulario es Fase.
 
  La pestaña Archivados reúne los pedidos archivados manualmente y aquellos cuyo precio de venta positivo está cubierto por el abono inicial y los pagos posteriores. Los pagos parciales y los pedidos sin precio permanecen activos. El pago completo archiva aunque el pedido siga en producción. Esta clasificación también se aplica a respaldos anteriores. Corregir un pago o precio y dejar saldo reabre el pedido, salvo que se hubiera archivado manualmente. El archivo conserva los datos y permite editarlos. Los pedidos pagados permanecen archivados automáticamente mientras mantengan saldo cero; los archivados manualmente con saldo se pueden restaurar con su botón.
+
+## Rediseño BRANLY UI · noviembre 2026
+
+La interfaz aplica los fundamentos consultados en BRANLY UI v1.0 con los colores y la mascota originales de KUUMI. Más opciones permite elegir apariencia Sistema, Claro u Oscuro. La preferencia usa `kuumi-crm-appearance`, independiente de los pedidos y respaldos existentes.
+
+Las secciones conservan búsqueda, filtros, orden, expansión y posición durante la sesión; Parámetros conserva su borrador. Las hojas tienen entrada/salida animada, cierre explícito, gesto desde el tirador, restauración del foco y confirmación integrada para descartar cambios o retirar datos. Las tarjetas se expanden y reordenan con movimiento reducido cuando así lo solicita el dispositivo. Materiales muestra los precios reales por kg de cada pedido.
+
+[Auditoría, flujos y especificaciones](design/UI-UX.md) · [Prototipo interactivo en Figma](https://www.figma.com/design/NrpmwFoEQ264fl0aBdjHfP?node-id=1-3&autoplay-code-preview=1-3).
 
 ## Cálculos
 

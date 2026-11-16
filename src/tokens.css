@@ -1,0 +1,22 @@
+/* BRANLY UI v1.0 foundations, extended with KUUMI's original violet identity. */
+:root {
+ --canvas:#f7f5fa; --paper:#ffffff; --surface:#f1ecf7; --field:#faf8fd;
+ --ink:#30253d; --muted:#6f617b; --accent:#7b50b5; --accent-hover:#693fa1;
+ --on-accent:#ffffff; --accent-text:#6b3e9b; --accent-soft:#eee5f8;
+ --line:#e5ddec; --field-line:#c4b3d1; --focus:#8a5cbc;
+ --glass:#ffffffd9; --dock:#ede7f3ee; --wash:#ffffff80;
+ --positive:#28633c; --negative:#a63637; --error-bg:#fff1f0; --error-line:#e7b7b4;
+ --shadow:0 4px 20px #35204706; --shadow-float:0 12px 40px #30203d16;
+ --press:140ms; --content:220ms; --expand:240ms; --modal:280ms; --ease:cubic-bezier(.2,.7,.2,1);
+ color-scheme:light;
+}
+:root[data-theme=dark] {
+ --canvas:#17131e; --paper:#231c2e; --surface:#2b2237; --field:#211a2b;
+ --ink:#f3edf9; --muted:#c0b0ce; --accent:#a27bd6; --accent-hover:#b792e7;
+ --on-accent:#1b1028; --accent-text:#d2b3fa; --accent-soft:#372547;
+ --line:#44344f; --field-line:#79618e; --focus:#c79bf5;
+ --glass:#231c2eed; --dock:#2b2237ee; --wash:#ffffff08;
+ --positive:#9bd1a9; --negative:#ffaba7; --error-bg:#3d252b; --error-line:#88525a;
+ --shadow:0 4px 20px #00000012; --shadow-float:0 12px 40px #00000035;
+ color-scheme:dark;
+}
