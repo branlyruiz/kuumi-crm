@@ -60,3 +60,5 @@ npm run build
 ```
 
 GitHub Pages publica `main` y `/docs`. Código y archivos compilados se guardan juntos. El servicio de caché y las claves de almacenamiento usan el prefijo `kuumi-crm`, distinto al del CRM BR. Rutas relativas permiten servir todo desde `/kuumi-crm/`. Los datos importados y respaldos de trabajo quedan fuera de Git.
+
+El formulario de cada pedido permite elegir Margen objetivo (%) junto a Otros costos del pedido: 30, 35, 40, 45, 50, 55 o 60 %. Se guarda en los parámetros propios del pedido y recalcula la sugerencia al instante; el precio pactado se conserva. Valores anteriores fuera de esta lista se muestran como actual sin modificarlos automáticamente. Actualizar costos conserva el margen elegido.

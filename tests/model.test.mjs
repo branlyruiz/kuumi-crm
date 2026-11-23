@@ -80,3 +80,18 @@ test('quick status updates persist, cancel receivables and reject stale saves',(
  assert.equal(cancelled.phase,'Orden confirmada');assert.equal(isReceivable(cancelled),false);assert.equal(calculate(cancelled).balance,100000);
  assert.throws(()=>updateProgress(before,{phase:'Fase inválida'}));
 });
+
+test('per-order margin choices recalculate suggestions and survive save and backup without changing global margin',()=>{
+ const d=disk(),store=createStore(d),base=order({weight:100,quotedTotal:null});
+ for(const percent of [30,35,40,45,50,55,60]){
+  const changed={...base,id:'margin-'+percent,pricing:{...base.pricing,margin:percent/100}};
+  const n=calculate(changed);
+  assert.equal(n.suggested,Math.ceil(n.totalCost/(1-percent/100)/changed.pricing.roundTo-1e-9)*changed.pricing.roundTo);
+  store.saveOrder(changed);
+ }
+ const saved=createStore(d).read();assert.equal(saved.params.margin,.6);
+ const restored=createStore(disk());restored.import(JSON.parse(JSON.stringify(saved)),true);
+ assert.deepEqual(restored.read().orders.map(o=>o.pricing.margin),[.3,.35,.4,.45,.5,.55,.6]);
+ const quoted={...base,quotedTotal:50000,pricing:{...base.pricing,margin:.3}};
+ assert.equal(calculate(quoted).saleTotal,50000);assert.equal(calculate(quoted).totalCost,calculate(base).totalCost);
+});
